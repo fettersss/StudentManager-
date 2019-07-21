@@ -1,0 +1,264 @@
+ // update
+ public boolean update(Student stu) {
+   boolean result = false;
+   if (stu == null) {
+     return result;
+   }
+   try {
+     // check
+     if (queryBySno(stu.getId()) == 0) {
+       return result;
+     }
+     // update
+     String sql = "update student set sex=?,department=?,tele=?, where name=? and id=?";
+     String[] param = { stu.getSex(), stu.getDep(), stu.getTel(), stu.getPassword(),
+         stu.getName(), stu.getId() };
+     int rowCount = db.executeUpdate(sql, param);
+     if (rowCount == 1) {
+       result = true;    }
+   } catch (SQLException se) {
+     se.printStackTrace();
+   } finally {
+     destroy();
+   }
+   return result;
+ }
+ 
+ // delete
+ public boolean delete(Student stu) {
+   boolean result = false;
+   if (stu == null) {
+     return result;
+   }
+   String sql = "delete from student where name=? and sno=?";
+   String[] param = { stu.getName(), stu.getId() };
+   int rowCount = db.execu
+   if (rowCount == 1) {
+     result = true;
+   }
+   destroy();
+   return result;
+ }
+ 
+ // add
+ public boolean add(Student stu) {
+   boolean result = false;
+   if (stu == null) {
+     return result;
+   }
+   try {
+     // check
+     if (queryBySno(stu.getId()) == 1) {
+       return result;
+     }
+     // insert
+     String sql = "insert into student(id,name,sex,dep,tele,password) values(?,?,?,?,?,?)";
+     String[] param = { stu.getId(),stu.getName(), stu.getSex(), stu.getDep(),stu.getTel(),stu.getPassword() };
+     if (db.executeUpdate(sql, param) == 1) {
+       result = true;
+     }
+   } catch (SQLException se) {
+     se.printStackTrace();
+   } finally {
+     destroy();
+   }
+   return result;
+ }
+ 
+ // query by name
+ public String[][] queryByName(String name) {
+   String[][] result = null;
+   if (name.length() < 0) {
+     return result;
+   }
+   List<Student> stus = new ArrayList<Student>();
+   int i = 0;
+   String sql = "select * from student where name like ?";
+   String[] param = { "%" + name + "%" };
+   rs = db.executeQuery(sql, param);
+   try {
+     while (rs.next()) {
+       buildList(rs, stus, i);
+       i++;
+     }
+     if (stus.size() > 0) {
+       result = new String[stus.size()][fieldNum];
+       for (int j = 0; j < stus.size(); j++) {
+         buildResult(result, stus, j);
+       }
+     }
+   } catch (SQLException se) {
+     se.printStackTrace();
+   } finally {
+     destroy();
+   }
+ 
+   return result;
+ }
+ 
+ // query
+ public String[][] list(int pageNum) {
+   String[][] result = null;
+   if (pageNum < 1) {
+     return result;
+   }
+   List<Student> stus = new ArrayList<Student>();
+   int i = 0;
+   int beginNum = (pageNum - 1) * showNum;
+   String sql = "select * from student limit ?,?";
+   Integer[] param = { beginNum, showNum };
+   rs = db.executeQuery(sql, param);
+   try {
+     while (rs.next()) {
+       buildList(rs, stus, i);
+       i++;
+     }
+     if (stus.size() > 0) {
+       result = new String[stus.size()][fieldNum];
+       for (int j = 0; j < stus.size(); j++) {
+         buildResult(result, stus, j);
+       }
+     }
+   } catch (SQLException se) {
+     se.printStackTrace();
+   } finally {
+     destroy();
+   }
+ 
+   return result;
+ }
+ */
+ 
+ /*public String[][] list(int pageNum) {
+		String[][] result = null;
+		if (pageNum < 1) {
+			return result;
+		}
+		List<Student> stus = new ArrayList<Student>();
+		int i = 0;
+		int beginNum = (pageNum - 1) * showNum;
+		String sql = "select * from student limit ?,?";
+		Integer[] param = { beginNum, showNum };
+		rs = db.executeQuery(sql, param);
+		try {
+			while (rs.next()) {
+				buildList(rs, stus, i);
+				i++;
+			}
+			if (stus.size() > 0) {
+				result = new String[stus.size()][fieldNum];
+				for (int j = 0; j < stus.size(); j++) {
+					buildResult(result, stus, j);
+				}
+			}
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} finally {
+			destroy();
+		}
+
+		return result;
+	}*/
+ /*
+ // 将rs记录添加到list中
+ private void buildList(ResultSet rs, List<Student> list, int i) throws SQLException {
+   Student stu = new Student();
+   stu.setId(rs.getString("id"));
+   stu.setName(rs.getString("name"));
+   stu.setSex(rs.getString("sex"));
+   stu.setDep(rs.getString("dep")); 
+   stu.setTel(rs.getString("tele"));
+   stu.setPassword(rs.getString("password"));
+   list.add(stu);
+ }
+ 
+ // 将list中记录添加到二维数组中
+ private void buildResult(String[][] result, List<Student> stus, int j) {
+   Student stu = stus.get(j);
+   result[j][0] = stu.getId();
+   result[j][1] = stu.getName();
+   result[j][2] = stu.getSex();
+   result[j][3] = stu.getDep();
+   result[j][4] = stu.getTel();
+   result[j][5]=stu.getPassword();
+ }
+ 
+ //将rs记录添加到list中成绩
+ private void buildGradeList(ResultSet rs, List<Grade> list, int i) throws SQLException {
+	   Grade gra = new Grade();
+	   gra.setId(rs.getString("id"));
+	   gra.setcName(rs.getString("cname"));
+	   gra.setCgrade(rs.getString("cgrade"));
+	   list.add(gra);
+	 }
+ 
+ //将list中记录添加到二维数组中成绩
+ private void buildGradeResult(String[][] result, List<Grade> gras, int j) {
+	   Grade gra = gras.get(j);
+	   result[j][0] = gra.getId();
+	   result[j][1] = gra.getcName();
+	   result[j][2] =gra.getCgrade();
+	 }
+ 
+ public String[][] queryByName(String name) {
+		String[][] result = null;
+		if (name.length() < 0) {
+			return result;
+		}
+		List<Student> stus = new ArrayList<Student>();
+		int i = 0;
+		String sql = "select * from student where name like ?";
+		String[] param = { "%" + name + "%" };
+		rs = db.executeQuery(sql, param);
+		try {
+			while (rs.next()) {
+				buildList(rs, stus, i);
+				i++;
+			}
+			if (stus.size() > 0) {
+				result = new String[stus.size()][fieldNum];
+				for (int j = 0; j < stus.size(); j++) {
+					buildResult(result, stus, j);
+				}
+			}
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} finally {
+			destroy();
+		}
+
+		return result;
+	}
+ */
+ 
+ 
+ /*
+ // 学生根据学号查询本人信息
+ public int queryById(String ID) throws SQLException {
+   int result = 0;
+   if ("".equals(ID) || ID == null) {
+     return result;
+   }
+   String checkSql = "select * from student where id=?";
+   String[] checkParam = { ID };
+   rs = db.executeQuery(checkSql, checkParam);
+   if (rs.next()) {
+     result = 1;
+   }
+   return result;
+ }
+//学生根据学号查询本人课程成绩
+ public int gradeById(String ID) throws SQLException {
+	   int result = 0;
+	   if ("".equals(ID) || ID == null) {
+	     return result;
+	   }
+	   String checkSql = "select * from grade where id=?";
+	   String[] checkParam = { ID };
+	   rs = db.executeQuery(checkSql, checkParam);
+	   if (rs.next()) {
+	     result = 1;
+	   }
+	   return result;
+	 }
+ */
